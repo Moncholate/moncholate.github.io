@@ -8,17 +8,25 @@
 <link rel="canonical" href="https://moncholate.github.io/kachai/">
 <script>
 (function () {
-  var MAPA = {"Kachai":"kachai","Liveboard":"liveboard","Chasquibox":"teachers-utility-belt"};
+  var MAPA = {"Kachai":"kachai","Liveboard":"liveboard","Chasquibox":"teachers-utility-belt","Grammar-HUB":"grammar-hub","GramMaster":"grammaster","DesGramatizador":"desgramatizador","Question-Lab":"question-lab"};
   var p = location.pathname;
   for (var viejo in MAPA) {
     if (p === '/' + viejo || p.indexOf('/' + viejo + '/') === 0) {
       var resto = p.slice(viejo.length + 1) || '/';
-      location.replace('/' + MAPA[viejo] + resto + location.search + location.hash);
+      var ir = function () { location.replace('/' + MAPA[viejo] + resto + location.search + location.hash); };
+      if (!('serviceWorker' in navigator)) return ir();
+      var listo = false, salir = function () { if (!listo) { listo = true; ir(); } };
+      setTimeout(salir, 800);
+      navigator.serviceWorker.getRegistrations().then(function (rs) {
+        return Promise.all(rs.filter(function (r) {
+          return new URL(r.scope).pathname.indexOf('/' + viejo + '/') === 0;
+        }).map(function (r) { return r.unregister(); }));
+      }).then(salir, salir);
       return;
     }
   }
 })();</script>
-<meta http-equiv="refresh" content="2; url=/kachai/">
+<noscript><meta http-equiv="refresh" content="0; url=/kachai/"></noscript>
 <style>
   body { font-family: system-ui, sans-serif; display: grid; place-items: center; min-height: 100vh; margin: 0; background: #f8fafc; color: #0f172a; }
   @media (prefers-color-scheme: dark) { body { background: #0f1320; color: #e6e9f2; } a { color: #60a5fa; } }
