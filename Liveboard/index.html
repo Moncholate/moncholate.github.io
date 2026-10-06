@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nueva dirección · liveboard</title>
+<meta name="robots" content="noindex">
+<link rel="canonical" href="https://moncholate.github.io/liveboard/">
+<script>
+(function () {
+  var MAPA = {"Kachai":"kachai","Liveboard":"liveboard","Chasquibox":"teachers-utility-belt"};
+  var p = location.pathname;
+  for (var viejo in MAPA) {
+    if (p === '/' + viejo || p.indexOf('/' + viejo + '/') === 0) {
+      var resto = p.slice(viejo.length + 1) || '/';
+      location.replace('/' + MAPA[viejo] + resto + location.search + location.hash);
+      return;
+    }
+  }
+})();</script>
+<meta http-equiv="refresh" content="2; url=/liveboard/">
+<style>
+  body { font-family: system-ui, sans-serif; display: grid; place-items: center; min-height: 100vh; margin: 0; background: #f8fafc; color: #0f172a; }
+  @media (prefers-color-scheme: dark) { body { background: #0f1320; color: #e6e9f2; } a { color: #60a5fa; } }
+  main { max-width: 28rem; padding: 1.5rem; text-align: center; }
+</style>
+</head>
+<body>
+<main>
+  <p>Esta app cambió de dirección. Te llevamos a <a href="/liveboard/">moncholate.github.io/liveboard/</a></p>
+</main>
+</body>
+</html>
