@@ -11,7 +11,8 @@ const path = require('path');
 const MAPA = {
   Kachai: { nueva: 'kachai' },
   Liveboard: { nueva: 'liveboard' },
-  Chasquibox: { nueva: 'teachers-utility-belt', sw: true },
+  Chasquibox: { nueva: 'teachers-toolbox', sw: true },
+  'teachers-utility-belt': { nueva: 'teachers-toolbox', sw: true },
   'Grammar-HUB': { nueva: 'grammar-hub', sw: true },
   GramMaster: { nueva: 'grammaster', sw: true },
   DesGramatizador: { nueva: 'desgramatizador', sw: true },

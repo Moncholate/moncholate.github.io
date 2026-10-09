@@ -5,7 +5,8 @@ las rutas de GitHub Pages distinguen mayúsculas y `/Kachai/` no es `/kachai/`):
 
 - `/Kachai/` → `/kachai/`
 - `/Liveboard/` → `/liveboard/`
-- `/Chasquibox/` → `/teachers-utility-belt/` · con service worker de retiro
+- `/Chasquibox/` → `/teachers-toolbox/` · con service worker de retiro
+- `/teachers-utility-belt/` → `/teachers-toolbox/` · con service worker de retiro
 - `/Grammar-HUB/` → `/grammar-hub/` · con service worker de retiro
 - `/GramMaster/` → `/grammaster/` · con service worker de retiro
 - `/DesGramatizador/` → `/desgramatizador/` · con service worker de retiro
