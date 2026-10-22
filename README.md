@@ -3,7 +3,8 @@
 Solo redirecciones de direcciones antiguas a las nuevas (en minúscula, porque
 las rutas de GitHub Pages distinguen mayúsculas y `/Kachai/` no es `/kachai/`):
 
-- `/Kachai/` → `/kachai/`
+- `/Kachai/` → `https://kachai-285dd.web.app/`
+- `/kachai/` → `https://kachai-285dd.web.app/` · por el 404.html
 - `/Liveboard/` → `/liveboard/`
 - `/Chasquibox/` → `/teachers-toolbox/` · con service worker de retiro
 - `/teachers-utility-belt/` → `/teachers-toolbox/` · con service worker de retiro
@@ -18,4 +19,5 @@ si el worker viejo cambió, recibe este, que se da de baja y recarga la ventana.
 Lo arma `armar.cjs`: `node armar.cjs`, y commit + push.
 
 Una app nueva debe nacer con el repo en minúscula; si alguna vez se renombra,
-se agrega aquí.
+se agrega aquí. Kachai se mudó a Firebase Hosting (su repo es privado y ya no
+publica Pages): `/kachai/` la atrapa el 404.html y la reenvía allá.

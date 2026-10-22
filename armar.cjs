@@ -7,9 +7,17 @@ const path = require('path');
 
 /* dirección antigua → nueva. Las rutas de GitHub Pages distinguen mayúsculas:
    /Kachai/ y /kachai/ son direcciones distintas, y solo la nueva es la app.
-   `sw`: la app tuvo service worker en la dirección antigua. */
+   `nueva`: carpeta de este sitio, o una dirección completa (https://…) si la
+   app se mudó fuera de GitHub Pages.
+   `sw`: la app tuvo service worker en la dirección antigua.
+   `sinCarpeta`: no se crea su carpeta y la atrapa el 404.html. Para /kachai/:
+   en Windows y Mac la carpeta kachai/ chocaría con Kachai/. Mientras el repo
+   kachai publique su propio Pages, esa dirección es suya y esto no se usa. */
+const KACHAI = 'https://kachai-285dd.web.app';
+
 const MAPA = {
-  Kachai: { nueva: 'kachai' },
+  Kachai: { nueva: KACHAI },
+  kachai: { nueva: KACHAI, sinCarpeta: true },
   Liveboard: { nueva: 'liveboard' },
   Chasquibox: { nueva: 'teachers-toolbox', sw: true },
   'teachers-utility-belt': { nueva: 'teachers-toolbox', sw: true },
@@ -18,6 +26,9 @@ const MAPA = {
   DesGramatizador: { nueva: 'desgramatizador', sw: true },
   'Question-Lab': { nueva: 'question-lab', sw: true },
 };
+const externa = (d) => d.startsWith('https://');
+const enlace = (d) => (externa(d) ? `${d}/` : `/${d}/`);
+const rotulo = (d) => (externa(d) ? d.slice('https://'.length) : `moncholate.github.io/${d}`);
 const destinos = Object.fromEntries(Object.entries(MAPA).map(([v, d]) => [v, d.nueva]));
 
 /* Reenvía conservando el resto de la ruta, la consulta y el #hash (el PIN de
@@ -31,7 +42,8 @@ const script = `
   for (var viejo in MAPA) {
     if (p === '/' + viejo || p.indexOf('/' + viejo + '/') === 0) {
       var resto = p.slice(viejo.length + 1) || '/';
-      var ir = function () { location.replace('/' + MAPA[viejo] + resto + location.search + location.hash); };
+      var base = MAPA[viejo].indexOf('https://') === 0 ? MAPA[viejo] : '/' + MAPA[viejo];
+      var ir = function () { location.replace(base + resto + location.search + location.hash); };
       if (!('serviceWorker' in navigator)) return ir();
       var listo = false, salir = function () { if (!listo) { listo = true; ir(); } };
       setTimeout(salir, 800);
@@ -71,9 +83,9 @@ const pagina = (titulo, destino) => `<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${titulo}</title>
 <meta name="robots" content="noindex">
-${destino ? `<link rel="canonical" href="https://moncholate.github.io/${destino}/">` : ''}
+${destino ? `<link rel="canonical" href="${externa(destino) ? enlace(destino) : `https://moncholate.github.io/${destino}/`}">` : ''}
 <script>${script}</script>
-${destino ? `<noscript><meta http-equiv="refresh" content="0; url=/${destino}/"></noscript>` : ''}
+${destino ? `<noscript><meta http-equiv="refresh" content="0; url=${enlace(destino)}"></noscript>` : ''}
 <style>
   body { font-family: system-ui, sans-serif; display: grid; place-items: center; min-height: 100vh; margin: 0; background: #f8fafc; color: #0f172a; }
   @media (prefers-color-scheme: dark) { body { background: #0f1320; color: #e6e9f2; } a { color: #60a5fa; } }
@@ -83,7 +95,7 @@ ${destino ? `<noscript><meta http-equiv="refresh" content="0; url=/${destino}/">
 <body>
 <main>
   ${destino
-    ? `<p>Esta app cambió de dirección. Te llevamos a <a href="/${destino}/">moncholate.github.io/${destino}/</a></p>`
+    ? `<p>Esta app cambió de dirección. Te llevamos a <a href="${enlace(destino)}">${rotulo(destino)}/</a></p>`
     : `<p>Esta página no existe.</p>`}
 </main>
 </body>
@@ -92,8 +104,9 @@ ${destino ? `<noscript><meta http-equiv="refresh" content="0; url=/${destino}/">
 
 const raiz = __dirname;
 for (const [viejo, d] of Object.entries(MAPA)) {
+  if (d.sinCarpeta) continue;
   fs.mkdirSync(path.join(raiz, viejo), { recursive: true });
-  fs.writeFileSync(path.join(raiz, viejo, 'index.html'), pagina(`Nueva dirección · ${d.nueva}`, d.nueva));
+  fs.writeFileSync(path.join(raiz, viejo, 'index.html'), pagina(`Nueva dirección · ${externa(d.nueva) ? viejo.toLowerCase() : d.nueva}`, d.nueva));
   const sw = path.join(raiz, viejo, 'sw.js');
   if (d.sw) fs.writeFileSync(sw, retiro);
   else if (fs.existsSync(sw)) fs.unlinkSync(sw);
@@ -107,7 +120,7 @@ fs.writeFileSync(path.join(raiz, 'README.md'),
 Solo redirecciones de direcciones antiguas a las nuevas (en minúscula, porque
 las rutas de GitHub Pages distinguen mayúsculas y \`/Kachai/\` no es \`/kachai/\`):
 
-${Object.entries(MAPA).map(([v, d]) => `- \`/${v}/\` → \`/${d.nueva}/\`${d.sw ? ' · con service worker de retiro' : ''}`).join('\n')}
+${Object.entries(MAPA).map(([v, d]) => `- \`/${v}/\` → \`${externa(d.nueva) ? enlace(d.nueva) : `/${d.nueva}/`}\`${d.sw ? ' · con service worker de retiro' : ''}${d.sinCarpeta ? ' · por el 404.html' : ''}`).join('\n')}
 
 Se conserva lo que venga después (\`#/play?pin=…\`). Donde la app tuvo modo sin
 internet, \`<antigua>/sw.js\` es un worker de RETIRO: cuando el navegador revisa
@@ -115,6 +128,7 @@ si el worker viejo cambió, recibe este, que se da de baja y recarga la ventana.
 Lo arma \`armar.cjs\`: \`node armar.cjs\`, y commit + push.
 
 Una app nueva debe nacer con el repo en minúscula; si alguna vez se renombra,
-se agrega aquí.
+se agrega aquí. Kachai se mudó a Firebase Hosting (su repo es privado y ya no
+publica Pages): \`/kachai/\` la atrapa el 404.html y la reenvía allá.
 `);
 console.log('listo');
